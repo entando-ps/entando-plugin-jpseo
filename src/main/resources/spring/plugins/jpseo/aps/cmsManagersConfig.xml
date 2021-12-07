@@ -18,6 +18,7 @@
     </bean>
     
     <bean id="jacmsContentViewerHelper" class="org.entando.entando.plugins.jpseo.aps.system.services.content.widget.ContentViewerHelper" >
+        <property name="pageModelManager" ref="PageModelManager" />
         <property name="contentDispenser" ref="jacmsBaseContentDispenser" />
         <property name="contentManager" ref="jacmsContentManager" />
         <property name="contentModelManager" ref="jacmsContentModelManager" />

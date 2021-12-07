@@ -26,6 +26,7 @@ import org.entando.entando.plugins.jpseo.aps.system.JpseoSystemConstants;
 import com.agiletec.aps.system.RequestContext;
 import com.agiletec.aps.system.SystemConstants;
 import com.agiletec.aps.system.services.page.IPage;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsProperties;
 
 /**
@@ -48,7 +49,8 @@ public class ContentViewerHelper extends com.agiletec.plugins.jacms.aps.system.s
 	protected boolean isCurrentFrameMain(RequestContext reqCtx) {
 		Integer currentFrame = (Integer) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_FRAME);
 		IPage currentPage = (IPage) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_PAGE);
-		int mainFrame = currentPage.getModel().getMainFrame();
+        PageModel model = super.getPageModelManager().getPageModel(currentPage.getMetadata().getModelCode());
+		int mainFrame = model.getMainFrame();
 		return (currentFrame.intValue() == mainFrame);
 	}
 	

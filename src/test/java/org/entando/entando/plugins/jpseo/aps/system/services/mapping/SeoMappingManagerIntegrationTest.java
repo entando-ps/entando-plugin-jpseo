@@ -35,6 +35,7 @@ import com.agiletec.aps.system.services.page.Page;
 import com.agiletec.aps.system.services.page.PageMetadata;
 import com.agiletec.aps.system.services.page.PageTestUtil;
 import com.agiletec.aps.system.services.page.Widget;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsProperties;
 import com.agiletec.plugins.jacms.aps.system.JacmsSystemConstants;
@@ -53,6 +54,7 @@ class SeoMappingManagerIntegrationTest extends BaseTestCase {
     
     private IContentManager contentManager;
     private IPageManager pageManager;
+    private IPageModelManager pageModelManager;
     private ISeoMappingManager seoMappingManager;
     private IWidgetTypeManager widgetTypeManager;
     
@@ -220,14 +222,14 @@ class SeoMappingManagerIntegrationTest extends BaseTestCase {
     private void addPage(String code, String parentCode, String friendlyCode) throws Exception {
         IPage parentPage = pageManager.getDraftPage(parentCode);
         String parentForNewPage = parentPage.getParentCode();
-        PageModel pageModel = parentPage.getMetadata().getModel();
+        PageModel pageModel = this.pageModelManager.getPageModel(parentPage.getMetadata().getModelCode());
         PageMetadata metadata = this.createSeoPageMetadata(pageModel,
                 true, "pagina temporanea", null, null, false, null, null, friendlyCode);
         ApsProperties config = PageTestUtil.createProperties("actionPath", "/myJsp.jsp", "param1", "value1");
-        Widget widgetToAdd = PageTestUtil.createWidget("formAction", config, this.widgetTypeManager);
+        Widget widgetToAdd = PageTestUtil.createWidget("formAction", config);
         Widget[] widgets = new Widget[pageModel.getFrames().length]; 
         widgets[0] = widgetToAdd;
-        Page pageToAdd = PageTestUtil.createPage(code, parentForNewPage, "free", metadata, widgets);
+        Page pageToAdd = PageTestUtil.createPage(code, parentForNewPage, "free", pageModel, metadata, widgets);
         this.pageManager.addPage(pageToAdd);
         this.pageManager.setPageOnline(code);
     }
@@ -235,7 +237,7 @@ class SeoMappingManagerIntegrationTest extends BaseTestCase {
 	private SeoPageMetadata createSeoPageMetadata(PageModel pageModel, boolean showable, String defaultTitle, String mimeType,
 			String charset, boolean useExtraTitles, Set<String> extraGroups, Date updatedAt, String friendlyCode) {
         SeoPageMetadata metadata = new SeoPageMetadata();
-		metadata.setModel(pageModel);
+		metadata.setModelCode(pageModel.getCode());
         PageMetatag pageMetatag = new PageMetatag("it", "it", friendlyCode);
         metadata.getFriendlyCodes().put("it", pageMetatag);
 		metadata.setShowable(showable);
@@ -257,6 +259,7 @@ class SeoMappingManagerIntegrationTest extends BaseTestCase {
             this.contentManager = (IContentManager) this.getService(JacmsSystemConstants.CONTENT_MANAGER);
             this.seoMappingManager = (ISeoMappingManager) this.getService(JpseoSystemConstants.SEO_MAPPING_MANAGER);
             this.pageManager = (IPageManager) this.getService(SystemConstants.PAGE_MANAGER);
+            this.pageModelManager = (IPageModelManager) this.getService(SystemConstants.PAGE_MODEL_MANAGER);
             this.widgetTypeManager = (IWidgetTypeManager) this.getService(SystemConstants.WIDGET_TYPE_MANAGER);
         } catch (Throwable t) {
             throw new Exception(t);

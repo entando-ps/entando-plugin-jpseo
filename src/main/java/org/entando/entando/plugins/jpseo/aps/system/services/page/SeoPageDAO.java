@@ -63,7 +63,7 @@ public class SeoPageDAO extends PageDAO {
             throw new EntException(msg, t);
         }
         pageMetadata.setTitles(titles);
-        pageMetadata.setModel(this.getPageModelManager().getPageModel(res.getString(index++)));
+        pageMetadata.setModelCode(res.getString(index++));
         Integer showable = res.getInt(index++);
         pageMetadata.setShowable(showable == 1);
         String extraConfig = res.getString(index++);
