@@ -14,10 +14,8 @@
 package org.entando.entando.plugins.jpseo.web.page;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,7 +31,7 @@ import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.system.services.page.Page;
 import com.agiletec.aps.system.services.page.PageMetadata;
 import com.agiletec.aps.system.services.page.PageTestUtil;
-import com.agiletec.aps.system.services.page.Widget;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.system.services.role.Permission;
 import com.agiletec.aps.system.services.user.UserDetails;
@@ -47,7 +45,6 @@ import java.util.Map;
 import org.entando.entando.aps.system.services.page.IPageService;
 import org.entando.entando.aps.system.services.page.model.PageDto;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.FriendlyCodeVO;
-import org.entando.entando.plugins.jpseo.aps.system.services.mapping.ISeoMappingManager;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.SeoMappingManager;
 import org.entando.entando.web.AbstractControllerIntegrationTest;
 import org.entando.entando.web.page.model.PageCloneRequest;
@@ -61,8 +58,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.validation.BindingResult;
 
 class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest {
 
@@ -72,6 +67,9 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
     
     @Autowired
     private IPageManager pageManager;
+    
+    @Autowired
+    private IPageModelManager pageModelManager;
     
     @Autowired
     private SeoMappingManager seoMappingManager;
@@ -933,12 +931,12 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
             parent = "service";
         }
         IPage parentPage = pageManager.getDraftPage(parent);
-        PageModel pageModel = parentPage.getMetadata().getModel();
+        PageModel pageModel = this.pageModelManager.getPageModel(parentPage.getMetadata().getModelCode());
         PageMetadata metadata = PageTestUtil
                 .createPageMetadata(pageModel, true, pageCode + "_title", null, null, false, null, null);
         ApsProperties config = new ApsProperties();
         config.put("actionPath", "/mypage.jsp");
-        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), group, metadata, null);
+        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), group, pageModel, metadata, null);
         return pageToAdd;
     }
     
