@@ -9,7 +9,7 @@
     </parent>
     <artifactId>entando-plugin-jpseo</artifactId>
     <groupId>org.entando.entando.plugins</groupId>
-    <version>6.5.1</version>
+    <version>6.5.0-MT</version>
     <packaging>war</packaging>
     <name>Entando Plugin: SEO</name>
     <description>Search Engine Optimization</description>
@@ -118,7 +118,7 @@
             <dependency>
                 <groupId>org.entando</groupId>
                 <artifactId>entando-core-bom</artifactId>
-                <version>6.5.0-ECS-211</version>
+                <version>6.5.0-MT</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

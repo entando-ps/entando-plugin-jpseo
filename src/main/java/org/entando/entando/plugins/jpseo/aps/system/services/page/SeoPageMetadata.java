@@ -58,7 +58,7 @@ public class SeoPageMetadata extends PageMetadata implements Serializable {
         if (extraGroups != null) {
             this.setExtraGroups(new TreeSet<>(extraGroups));
         }
-        this.setModel(original.getModel());
+        this.setModelCode(original.getModelCode());
         this.setShowable(original.isShowable());
         this.setUseExtraTitles(original.isUseExtraTitles());
         this.setMimeType(original.getMimeType());

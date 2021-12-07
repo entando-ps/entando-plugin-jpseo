@@ -14,10 +14,8 @@
 package org.entando.entando.plugins.jpseo.web.page;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,17 +28,27 @@ import com.agiletec.aps.system.common.notify.NotifyManager;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.IPageManager;
+import com.agiletec.aps.system.services.page.Page;
+import com.agiletec.aps.system.services.page.PageMetadata;
+import com.agiletec.aps.system.services.page.PageTestUtil;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.system.services.role.Permission;
 import com.agiletec.aps.system.services.user.UserDetails;
+import com.agiletec.aps.util.ApsProperties;
 import com.agiletec.aps.util.FileTextReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import org.entando.entando.aps.system.services.page.IPageService;
 import org.entando.entando.aps.system.services.page.model.PageDto;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.FriendlyCodeVO;
-import org.entando.entando.plugins.jpseo.aps.system.services.mapping.ISeoMappingManager;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.SeoMappingManager;
 import org.entando.entando.web.AbstractControllerIntegrationTest;
+import org.entando.entando.web.page.model.PageRequest;
 import org.entando.entando.web.utils.OAuth2TestUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +56,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest {
 
@@ -60,7 +67,12 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
     private IPageManager pageManager;
     
     @Autowired
+    private IPageModelManager pageModelManager;
+    
+    @Autowired
     private SeoMappingManager seoMappingManager;
+    
+    private ObjectMapper mapper = new ObjectMapper();
 
     private static String SEO_TEST_1 = "seoTest1";
     private static String SEO_TEST_2 = "seoTest2";
@@ -510,6 +522,146 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
             seoMappingManager.getSeoMappingDAO().deleteMappingForPage(SEO_TEST_2);
             seoMappingManager.getSeoMappingDAO().deleteMappingForPage(SEO_TEST_2_FC);
         }
+    }
+
+    @Test
+    void testCreatePageIntoDifferentOwnerGroupPages() throws Throwable {
+        UserDetails user = new OAuth2TestUtils.UserBuilder("jack_bauer", "0x24")
+                .withAuthorization(Group.FREE_GROUP_NAME, "managePages", Permission.MANAGE_PAGES)
+                .build();
+        String accessToken = mockOAuthInterceptor(user);
+        try {
+
+            pageManager.addPage(createPage("page_root",  null, Group.FREE_GROUP_NAME));
+            pageManager.addPage(createPage("free_pg",  "page_root", Group.FREE_GROUP_NAME));
+            pageManager.addPage(createPage("admin_pg",  "page_root", Group.ADMINS_GROUP_NAME));
+            pageManager.addPage(createPage("group1_pg",  "page_root", "coach"));
+            pageManager.addPage(createPage("group2_pg",  "page_root", "customers"));
+
+            String pageCode = "free_pg_into_admin_pg";
+
+            mockMvc.perform(post("/plugins/seo/pages", pageCode)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(
+                            createPageRequest(
+                                    pageCode,
+                                    Group.FREE_GROUP_NAME,
+                                    "admin_pg"))))
+                    .andDo(resultPrint())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.payload.size()", CoreMatchers.is(0)))
+                    .andExpect(jsonPath("$.errors.size()", CoreMatchers.is(1)))
+                    .andExpect(jsonPath("$.errors[0].code", CoreMatchers.is("2")))
+                    .andExpect(jsonPath("$.errors[0].message", CoreMatchers.is("Cannot move a free page under a reserved page")));
+
+            pageCode = "admin_pg_into_group1_pg";
+
+            mockMvc.perform(post("/plugins/seo/pages/", pageCode)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(
+                            createPageRequest(
+                                    pageCode,
+                                    Group.ADMINS_GROUP_NAME,
+                                    "group1_pg"))))
+                    .andDo(resultPrint())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.payload.size()", CoreMatchers.is(0)))
+                    .andExpect(jsonPath("$.errors.size()", CoreMatchers.is(1)))
+                    .andExpect(jsonPath("$.errors[0].code", CoreMatchers.is("2")))
+                    .andExpect(jsonPath("$.errors[0].message", CoreMatchers.is("Can not move a page under a page owned by a different group")));
+
+            pageCode = "group1_pg_into_admin_pg";
+
+            mockMvc.perform(post("/plugins/seo/pages/", pageCode)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(
+                            createPageRequest(
+                                    pageCode,
+                                    "coach",
+                                    "admin_pg"))))
+                    .andDo(resultPrint())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.payload.size()", CoreMatchers.is(0)))
+                    .andExpect(jsonPath("$.errors.size()", CoreMatchers.is(1)))
+                    .andExpect(jsonPath("$.errors[0].code", CoreMatchers.is("2")))
+                    .andExpect(jsonPath("$.errors[0].message", CoreMatchers.is("Can not move a page under a page owned by a different group")));
+
+            pageCode = "group1_pg_into_group2_pg";
+
+            mockMvc.perform(post("/plugins/seo/pages/", pageCode)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(
+                            createPageRequest(
+                                    pageCode,
+                                    "coach",
+                                    "group2_pg"))))
+                    .andDo(resultPrint())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.payload.size()", CoreMatchers.is(0)))
+                    .andExpect(jsonPath("$.errors.size()", CoreMatchers.is(1)))
+                    .andExpect(jsonPath("$.errors[0].code", CoreMatchers.is("2")))
+                    .andExpect(jsonPath("$.errors[0].message", CoreMatchers.is("Can not move a page under a page owned by a different group")));
+
+            pageCode = "group2_pg_into_group1_pg";
+
+            mockMvc.perform(post("/plugins/seo/pages/", pageCode)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(mapper.writeValueAsString(
+                            createPageRequest(
+                                    pageCode,
+                                    "customers",
+                                    "group1_pg"))))
+                    .andDo(resultPrint())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.payload.size()", CoreMatchers.is(0)))
+                    .andExpect(jsonPath("$.errors.size()", CoreMatchers.is(1)))
+                    .andExpect(jsonPath("$.errors[0].code", CoreMatchers.is("2")))
+                    .andExpect(jsonPath("$.errors[0].message", CoreMatchers.is("Can not move a page under a page owned by a different group")));
+
+        } finally {
+            this.pageManager.deletePage("group2_pg_into_group1_pg");
+            this.pageManager.deletePage("group1_pg_into_group2_pg");
+            this.pageManager.deletePage("group1_pg_into_admin_pg");
+            this.pageManager.deletePage("admin_pg_into_group1_pg");
+            this.pageManager.deletePage("free_pg_into_admin_pg");
+            this.pageManager.deletePage("group2_pg");
+            this.pageManager.deletePage("group1_pg");
+            this.pageManager.deletePage("admin_pg");
+            this.pageManager.deletePage("free_pg");
+            this.pageManager.deletePage("page_root");
+        }
+    }
+
+    private PageRequest createPageRequest(String pageCode, String groupCode, String parentCode) {
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setCode(pageCode);
+        pageRequest.setPageModel("home");
+        pageRequest.setOwnerGroup(groupCode);
+        Map<String, String> titles = new HashMap<>();
+        titles.put("it", pageCode);
+        titles.put("en", pageCode);
+        pageRequest.setTitles(titles);
+        pageRequest.setParentCode(parentCode);
+        return pageRequest;
+    }
+
+    protected Page createPage(String pageCode, String parent, String group) {
+        if (null == parent) {
+            parent = "service";
+        }
+        IPage parentPage = pageManager.getDraftPage(parent);
+        PageModel pageModel = this.pageModelManager.getPageModel(parentPage.getMetadata().getModelCode());
+        PageMetadata metadata = PageTestUtil
+                .createPageMetadata(pageModel, true, pageCode + "_title", null, null, false, null, null);
+        ApsProperties config = new ApsProperties();
+        config.put("actionPath", "/mypage.jsp");
+        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), group, pageModel, metadata, null);
+        return pageToAdd;
     }
     
     protected void waitNotifyingThread() throws InterruptedException {
