@@ -6,6 +6,8 @@
 			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     
     <bean id="PageManager" class="com.agiletec.aps.system.services.page.PageManager" parent="abstractService" >
+        <property name="pageModelManager" ref="PageModelManager" />
+        <property name="configManager" ref="BaseConfigManager"/>
         <property name="pageDAO" >
             <bean class="org.entando.entando.plugins.jpseo.aps.system.services.page.SeoPageDAO">
                 <property name="dataSource" ref="portDataSource" />
