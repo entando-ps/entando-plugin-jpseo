@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.entando</groupId>
         <artifactId>entando-core-parent</artifactId>
-        <version>7.0.3</version>
+        <version>7.0.7</version>
     </parent>
     <artifactId>entando-plugin-jpseo</artifactId>
     <groupId>org.entando.entando.plugins</groupId>
@@ -13,6 +13,13 @@
     <name>Entando Plugin: SEO</name>
     <description>Search Engine Optimization</description>
     <url>http://www.entando.com/</url>
+    <licenses>
+        <license>
+            <name>GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007</name>
+            <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <repositories>
         <repository>
             <id>nexus-jx</id>
@@ -27,6 +34,9 @@
     </repositories>
     <properties>
         <checkstyle.skip>true</checkstyle.skip>
+        <owaspSuppressionFileLocation>
+            https://raw.githubusercontent.com/entando/entando-core-parent/v${project.parent.version}/owasp-dependency-check-suppression.xml
+        </owaspSuppressionFileLocation>
     </properties>
     <build>
         <resources>
