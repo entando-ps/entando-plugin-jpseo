@@ -106,6 +106,9 @@ public class SeoMappingManager extends AbstractService implements ISeoMappingMan
                 for (Entry<Object, Object> entry : seoMetadata.getFriendlyCodes().entrySet()) {
                     if (entry.getValue() instanceof PageMetatag) {
                         PageMetatag pageMetatag = (PageMetatag) entry.getValue();
+                        if (StringUtils.isEmpty(pageMetatag.getValue())) {
+                            continue;
+                        }
                         FriendlyCodeVO vo = new FriendlyCodeVO(pageMetatag.getValue(), page.getCode());
                         vo.setLangCode(pageMetatag.getLangCode());
                         this.getSeoMappingDAO().updateMapping(vo);

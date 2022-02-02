@@ -162,54 +162,7 @@ public class SeoMappingDAO extends AbstractSearcherDAO implements ISeoMappingDAO
     public void deleteMappingForPage(String pageCode) {
         super.executeQueryWithoutResultset(DELETE_FROM_PAGECODE, pageCode);
     }
-/*
-	protected void deleteRecord(String friendlyCode, String pageCode, String contentId, Connection conn) {
-		PreparedStatement stat = null;
-		try {
-			boolean appendedWhereClause = false;
-			StringBuilder query = new StringBuilder("DELETE FROM jpseo_friendlycode ");
-			if (null != friendlyCode) {
-				query.append(" WHERE friendlycode = ? ");
-				appendedWhereClause = true;
-			}
-			if (null != pageCode) {
-				if (appendedWhereClause) {
-					query.append(" AND ");
-				} else {
-					query.append(" WHERE ");
-					appendedWhereClause = true;
-				}
-				query.append(" pagecode = ? ");
-			}
-			if (null != contentId) {
-				if (appendedWhereClause) {
-					query.append(" AND ");
-				} else {
-					query.append(" WHERE ");
-					appendedWhereClause = true;
-				}
-				query.append(" contentid = ? ");
-			}
-			stat = conn.prepareStatement(query.toString());
-			int index = 1;
-			if (null != friendlyCode) {
-				stat.setString(index++, friendlyCode);
-			}
-			if (null != pageCode) {
-				stat.setString(index++, pageCode);
-			}
-			if (null != contentId) {
-				stat.setString(index++, contentId);
-			}
-			stat.executeUpdate();
-		} catch (Throwable t) {
-			_logger.error("Error deleting record - code {}", friendlyCode,  t);
-			throw new RuntimeException("Error deleting record - code " + friendlyCode, t);
-		} finally {
-			closeDaoResources(null, stat);
-		}
-	}
-*/
+    
 	@Override
 	public List<String> searchFriendlyCode(FieldSearchFilter[] filters) {
 		return super.searchId(filters);

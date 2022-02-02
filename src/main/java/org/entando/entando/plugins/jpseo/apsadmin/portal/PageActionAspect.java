@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.struts2.ServletActionContext;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -231,7 +232,7 @@ public class PageActionAspect {
             Lang lang = (Lang) langsIter.next();
             String titleKey = PARAM_DESCRIPTION_PREFIX + lang.getCode();
             String title = request.getParameter(titleKey);
-            if (null != title) {
+            if (!StringUtils.isBlank(title)) {
                 PageMetatag meta = new PageMetatag(lang.getCode(), "description", title.trim());
                 String useDefaultLangKey = PARAM_DESCRIPTION_USE_DEFAULT_PREFIX + lang.getCode();
                 String useDefaultLang = request.getParameter(useDefaultLangKey);
@@ -240,7 +241,7 @@ public class PageActionAspect {
             }
             String keywordsKey = PARAM_KEYWORDS_PREFIX + lang.getCode();
             String keywords = request.getParameter(keywordsKey);
-            if (null != keywords) {
+            if (!StringUtils.isBlank(keywords)) {
                 PageMetatag meta = new PageMetatag(lang.getCode(), "keywords", keywords.trim());
                 String useDefaultLangKey = PARAM_KEYWORDS_USE_DEFAULT_PREFIX + lang.getCode();
                 String useDefaultLang = request.getParameter(useDefaultLangKey);
@@ -249,7 +250,7 @@ public class PageActionAspect {
             }
             String friendlyCodesKey = PARAM_FRIENDLY_CODES_PREFIX + lang.getCode();
             String friendlyCode = request.getParameter(friendlyCodesKey);
-            if (null != friendlyCode) {
+            if (!StringUtils.isBlank(friendlyCode)) {
                 PageMetatag meta = new PageMetatag(lang.getCode(), "friendlyCode", friendlyCode.trim());
                 String useDefaultLangKey = PARAM_FRIENDLY_CODES_USE_DEFAULT_PREFIX + lang.getCode();
                 String useDefaultLang = request.getParameter(useDefaultLangKey);

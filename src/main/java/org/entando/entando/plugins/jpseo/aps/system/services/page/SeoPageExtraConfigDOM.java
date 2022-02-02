@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -121,46 +122,6 @@ public class SeoPageExtraConfigDOM extends PageExtraConfigDOM {
         return this.extractComplexParameters(elements);
     }
 
-    /*
-    .....
-    OLD STRUCTURE
-    <complexParameters>
-    <parameter key="key1">VALUE_1</parameter>
-    <parameter key="key2">VALUE_2</parameter>
-    <parameter key="key5">
-      <property key="fr">VALUE_5 FR</property>
-      <property key="en">VALUE_5 EN</property>
-      <property key="it">VALUE_5 IT</property>
-    </parameter>
-    <parameter key="key6">VALUE_6</parameter>
-    <parameter key="key3">
-      <property key="en">VALUE_3 EN</property>
-      <property key="it">VALUE_3 IT</property>
-    </parameter>
-    <parameter key="key4">VALUE_4</parameter>
-    </complexParameters>
-    .....
-     */
-
- /*
-    New Structure
-    .....
-    <complexParameters>
-    <lang code="it">
-      <meta key="key5">VALUE_5_IT</meta>
-      <meta key="key3" attributeName="name" useDefaultLang="false" >VALUE_3_IT</meta>
-      <meta key="key2" attributeName="property" useDefaultLang="true" />
-    </lang>
-    <lang code="en">
-      <meta key="key5">VALUE_5_IT</meta>
-      <meta key="key3" attributeName="name" useDefaultLang="false" >VALUE_3_EN</meta>
-      <meta key="key2" attributeName="property" useDefaultLang="true" />
-    </lang>
-    ...
-    ...
-    </complexParameters>
-    .....
-     */
     private Map<String, PageMetatag> extractLangMap(String code,
             Map<String, Map<String, PageMetatag>> complexParameters) {
         Map<String, PageMetatag> langMap = complexParameters.get(code);
@@ -250,20 +211,27 @@ public class SeoPageExtraConfigDOM extends PageExtraConfigDOM {
     }
 
     private void fillMultilangProperty(ApsProperties property, Element elementToFill, String elementName) {
-        if (null != property && property.size() > 0) {
-            Element mlElement = new Element(elementName);
-            elementToFill.addContent(mlElement);
-            Iterator<Object> iterator = property.keySet().iterator();
-            while (iterator.hasNext()) {
-                String langCode = (String) iterator.next();
-                Element langElement = new Element(PROPERTY_ELEMENT_NAME);
-                langElement.setAttribute(KEY_ATTRIBUTE_NAME, langCode);
-                PageMetatag metatag = (PageMetatag) property.get(langCode);
-
-                langElement.setAttribute(USE_DEFAULT_LANG_ELEMENT_NAME, String.valueOf(metatag.isUseDefaultLangValue()));
-                langElement.setText(metatag.getValue());
-                mlElement.addContent(langElement);
+        if (property.isEmpty()) {
+            return;
+        }
+        boolean addedMetadata = false;
+        Element mlElement = new Element(elementName);
+        Iterator<Object> iterator = property.keySet().iterator();
+        while (iterator.hasNext()) {
+            String langCode = (String) iterator.next();
+            PageMetatag metatag = (PageMetatag) property.get(langCode);
+            if (null == metatag || StringUtils.isBlank(metatag.getValue())) {
+                continue;
             }
+            Element langElement = new Element(PROPERTY_ELEMENT_NAME);
+            langElement.setAttribute(KEY_ATTRIBUTE_NAME, langCode);
+            langElement.setAttribute(USE_DEFAULT_LANG_ELEMENT_NAME, String.valueOf(metatag.isUseDefaultLangValue()));
+            langElement.setText(metatag.getValue());
+            mlElement.addContent(langElement);
+            addedMetadata = true;
+        }
+        if (addedMetadata) {
+            elementToFill.addContent(mlElement);
         }
     }
 

@@ -104,7 +104,7 @@ public class SeoPageMetadata extends PageMetadata implements Serializable {
     }
 
     public String getDescription(String langCode) {
-        return this.getDescriptions().getProperty(langCode);
+        return this.getMetatagValue(this.getDescriptions(), langCode);
     }
     public ApsProperties getDescriptions() {
         return descriptions;
@@ -112,15 +112,23 @@ public class SeoPageMetadata extends PageMetadata implements Serializable {
     public void setDescriptions(ApsProperties descriptions) {
         this.descriptions = descriptions;
     }
-
+    
     public String getFriendlyCode(String langCode) {
-        return this.getFriendlyCodes().getProperty(langCode);
+        return this.getMetatagValue(this.getFriendlyCodes(), langCode);
     }
     public ApsProperties getFriendlyCodes() {
         return friendlyCodes;
     }
     public void setFriendlyCodes(ApsProperties friendlyCodes) {
         this.friendlyCodes = friendlyCodes;
+    }
+    
+    private String getMetatagValue(ApsProperties metatags, String langCode) {
+        PageMetatag metatag = (null != metatags) ? (PageMetatag) metatags.get(langCode) : null;
+        if (null != metatag) {
+            return metatag.getValue();
+        }
+        return null;
     }
 
     public ApsProperties getKeywords() {
@@ -136,7 +144,6 @@ public class SeoPageMetadata extends PageMetadata implements Serializable {
     public void setUseExtraDescriptions(boolean useExtraDescriptions) {
         this.useExtraDescriptions = useExtraDescriptions;
     }
-
 
     public Map<String, Map<String, PageMetatag>> getComplexParameters() {
         return complexParameters;

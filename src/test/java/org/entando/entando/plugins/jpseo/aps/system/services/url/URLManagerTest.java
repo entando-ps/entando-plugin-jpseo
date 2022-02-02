@@ -24,6 +24,7 @@ import com.agiletec.aps.system.services.lang.Lang;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.util.ApsProperties;
+import org.entando.entando.plugins.jpseo.aps.system.services.page.PageMetatag;
 import org.entando.entando.plugins.jpseo.aps.system.services.page.SeoPageMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -55,15 +55,14 @@ class URLManagerTest {
     
     @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         Lang defaultLang = mock(Lang.class);
         Mockito.lenient().when(defaultLang.getCode()).thenReturn("en");
         Mockito.lenient().when(langManager.getDefaultLang()).thenReturn(defaultLang);
         this.page = mock(IPage.class);
         SeoPageMetadata metadata = new SeoPageMetadata();
         ApsProperties friendlyCodes = new ApsProperties();
-        friendlyCodes.setProperty("it", "ita_friendly");
-        friendlyCodes.setProperty("en", "en_friendly");
+        friendlyCodes.put("it", new PageMetatag("it", "friendlyCode", "ita_friendly"));
+        friendlyCodes.put("en", new PageMetatag("en", "friendlyCode", "en_friendly"));
         metadata.setFriendlyCodes(friendlyCodes);
         Mockito.lenient().when(page.getMetadata()).thenReturn(metadata);
         Mockito.lenient().when(pageManager.getOnlinePage(Mockito.anyString())).thenReturn(this.page);
