@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <useextratitles>false</useextratitles>
+  <charset>utf-8</charset>
+  <mimeType>text/html</mimeType>
+  <useextradescriptions>false</useextradescriptions>
+  <descriptions>
+    <property key="en">EN Description SeoPage 2</property>
+    <property key="it">Descrizione IT SeoPage 2</property>
+  </descriptions>
+  <keywords>
+    <property key="en">keyEN2.1,keyEN2.2,keyEN2.3</property>
+    <property key="it">keyIT2.1,keyIT2.2</property>
+  </keywords>
+  <complexParameters>
+    <lang code="it">
+      <meta key="key5">VALUE_5_IT</meta>
+      <meta key="key3" attributeName="name" useDefaultLang="false" >VALUE_3_IT</meta>
+      <meta key="key2" attributeName="property" useDefaultLang="true" />
+    </lang>
+    <lang code="en">
+      <meta key="key5">VALUE_5_IT</meta>
+      <meta key="key3" attributeName="name" useDefaultLang="false" >VALUE_3_EN</meta>
+      <meta key="key2" attributeName="property" useDefaultLang="true" />
+    </lang>
+  </complexParameters>
+</config>

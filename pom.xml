@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.entando</groupId>
         <artifactId>entando-core-parent</artifactId>
-        <version>7.0.9</version>
+        <version>7.0.13</version>
     </parent>
     <artifactId>entando-plugin-jpseo</artifactId>
     <groupId>org.entando.entando.plugins</groupId>
@@ -37,6 +37,7 @@
         <owaspSuppressionFileLocation>
             https://raw.githubusercontent.com/entando/entando-core-parent/v${project.parent.version}/owasp-dependency-check-suppression.xml
         </owaspSuppressionFileLocation>
+        <entando-core-bom.version>7.0.0-ENG-3174</entando-core-bom.version>
     </properties>
     <build>
         <resources>
@@ -103,7 +104,11 @@
             <dependency>
                 <groupId>org.entando</groupId>
                 <artifactId>entando-core-bom</artifactId>
+<<<<<<< HEAD
                 <version>7.0.0-PS-SNAPSHOT</version>
+=======
+                <version>${entando-core-bom.version}</version>
+>>>>>>> develop
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -152,10 +157,6 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.j256.ormlite</groupId>
-            <artifactId>ormlite-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

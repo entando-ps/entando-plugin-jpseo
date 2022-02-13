@@ -1,0 +1,40 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+           http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="00000000000001_jpseo_dataPort_test" author="entando" context="test">
+        <insert tableName="pages">
+            <column name="code" value="seo_page_1" />
+            <column name="parentcode" value="homepage" />
+            <column name="pos" valueNumeric="7" />
+        </insert>
+        <insert tableName="pages">
+            <column name="code" value="seo_page_2" />
+            <column name="parentcode" value="homepage" />
+            <column name="pos" valueNumeric="8" />
+        </insert>
+
+        <insert tableName="pages_metadata_draft">
+            <column name="code" value="seo_page_1" />
+            <column name="groupcode" value="free" />
+            <column name="titles" valueClobFile="clob/test/pages_metadata_draft_1.xml" />
+            <column name="modelcode" value="home" />
+            <column name="showinmenu" valueNumeric="1" />
+            <column name="extraconfig" valueClobFile="clob/test/pages_metadata_draft_2.xml" />
+            <column name="updatedat" valueDate="2018-06-20T16:31:31" />
+        </insert>
+        <insert tableName="pages_metadata_draft">
+            <column name="code" value="seo_page_2" />
+            <column name="groupcode" value="free" />
+            <column name="titles" valueClobFile="clob/test/pages_metadata_draft_3.xml" />
+            <column name="modelcode" value="home" />
+            <column name="showinmenu" valueNumeric="1" />
+            <column name="extraconfig" valueClobFile="clob/test/pages_metadata_draft_4.xml" />
+            <column name="updatedat" valueDate="2018-06-26T17:31:31" />
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

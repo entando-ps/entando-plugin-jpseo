@@ -1,0 +1,43 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+           http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="00000000000001_jpseo_dataPort_production" author="entando" context="production">
+        <preConditions onFail="MARK_RAN">
+            <!-- Use uppercase table name to avoid MySQL issue -->
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM DATABASECHANGELOG WHERE id = '00000000000001_jpseo_dataPort_restore'</sqlCheck>
+            <!-- This changeSet contains the same logic (in XML) of the old 00000000000001_dataPort_production.sql file, that was included by changeSetPort.xml
+                 Execution of this changeSet must be skipped if tables had already been filled using that file -->
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM DATABASECHANGELOG WHERE id = '00000000000001_jpseo_dataPort_production' AND filename = 'liquibase/jpseo/changeSetPort.xml'</sqlCheck>
+        </preConditions>
+
+        <insert tableName="widgetcatalog">
+            <column name="code" value="jpseo_content_viewer" />
+            <column name="titles" valueClobFile="clob/production/widgetcatalog_1.xml" />
+            <column name="parameters" valueClobFile="clob/production/widgetcatalog_2.xml" />
+            <column name="plugincode" value="jpseo" />
+            <column name="locked" valueNumeric="1 " />
+            <column name="readonlypagewidgetconfig" valueNumeric="0" />
+            <column name="widgetcategory" value="seo" />
+            <column name="icon" value="asset:ent-jpseo-content-viewer" />
+        </insert>
+
+        <insert tableName="guifragment">
+            <column name="code" value="jpseo_content_viewer" />
+            <column name="widgettypecode" value="jpseo_content_viewer" />
+            <column name="plugincode" value="jpseo" />
+            <column name="defaultgui" valueClobFile="clob/production/guifragment_1.ftl" />
+            <column name="locked" valueNumeric="1" />
+        </insert>
+        <insert tableName="guifragment">
+            <column name="code" value="jpseo_model_meta_info" />
+            <column name="plugincode" value="jpseo" />
+            <column name="defaultgui" valueClobFile="clob/production/guifragment_2.ftl" />
+            <column name="locked" valueNumeric="1" />
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
