@@ -1,0 +1,67 @@
+{
+  "charset": "utf-8",
+  "code": "seoTest5",
+  "contentType": "text/html",
+  "displayedInMenu": true,
+  "ownerGroup": "free",
+  "pageModel": "home",
+  "parentCode": "homepage",
+  "seo": true,
+  "joinGroups": [
+    "administrators"
+  ],
+  "seoData": {
+    "seoDataByLang": {
+      "en": {
+        "description": "test page",
+        "keywords": "keyword number 1, keyword number 2",
+        "friendlyCode": "test_page_5_duplicated_friendly_code",
+        "metaTags": [
+          {
+            "key": "author",
+            "type": "name",
+            "value": "entando",
+            "useDefaultLang": false
+          },
+          {
+            "key": "description",
+            "type": "name",
+            "value": "test page",
+            "useDefaultLang": false
+          }
+        ],
+        "inheritDescriptionFromDefaultLang": false,
+        "inheritKeywordsFromDefaultLang": false,
+        "inheritFriendlyCodeFromDefaultLang": false
+      },
+      "it": {
+        "description": "",
+        "keywords": "",
+        "friendlyCode": "test_page_5_duplicated_friendly_code",
+        "metaTags": [
+          {
+            "key": "author",
+            "type": "name",
+            "value": "entando",
+            "useDefaultLang": false
+          },
+          {
+            "key": "description",
+            "type": "name",
+            "value": "descrizione meta test",
+            "useDefaultLang": false
+          }
+        ],
+        "inheritDescriptionFromDefaultLang": true,
+        "inheritKeywordsFromDefaultLang": true
+      }
+    },
+    "useExtraDescriptions": true,
+    "useExtraTitles": true
+  },
+  "status": "draft",
+  "titles": {
+    "en": "Test Page",
+    "it": "Pagina di test"
+  }
+}

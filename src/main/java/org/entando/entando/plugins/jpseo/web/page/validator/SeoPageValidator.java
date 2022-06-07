@@ -13,15 +13,20 @@
  */
 package org.entando.entando.plugins.jpseo.web.page.validator;
 
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.FriendlyCodeVO;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.ISeoMappingManager;
+import org.entando.entando.plugins.jpseo.web.page.model.SeoDataByLang;
 import org.entando.entando.web.page.validator.PageValidator;
 import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
 
 @Component
 public class SeoPageValidator extends PageValidator {
@@ -58,5 +63,28 @@ public class SeoPageValidator extends PageValidator {
         return true;
     }
 
+    public boolean validateFriendlyCodeByLang(Map<String, SeoDataByLang> seoDataByLang, Errors errors) {
+
+        List friendlyCodes = new ArrayList<String>();
+        seoDataByLang.forEach(
+                (key, value) -> {
+                    if (null != value.getFriendlyCode() && !value.getFriendlyCode().isEmpty()) {
+                        friendlyCodes.add(value.getFriendlyCode());
+                    }
+                });
+
+        Set friendlyCodesDuplicates = findFriendlyCodesDuplicates(friendlyCodes);
+
+        if (friendlyCodesDuplicates.size() > 0) {
+            errors.reject("11", "Duplicated friendly code across different languages");
+            return false;
+        }
+        return true;
+    }
+
+    private static <T> Set<T> findFriendlyCodesDuplicates(List<T> list) {
+        return list.stream().filter(i -> Collections.frequency(list, i) > 1)
+                .collect(Collectors.toSet());
+    }
 
 }

@@ -2,8 +2,8 @@ package org.entando.entando.plugins.jpseo.web.page;
 
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.user.UserDetails;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 import java.util.Map.Entry;
 import org.entando.entando.aps.system.services.page.IPageService;
 import org.entando.entando.aps.system.services.page.PageAuthorizationService;
@@ -105,10 +105,13 @@ public class SeoPageController implements ISeoPageController {
                 }
             }
         }
+
+        if (null!=pageRequest.getSeoData()) {
+            getSeoPageValidator().validateFriendlyCodeByLang(pageRequest.getSeoData().getSeoDataByLang(), bindingResult);
+        }
         if (bindingResult.hasErrors()) {
             throw new ValidationConflictException(bindingResult);
         }
-
         validatePagePlacement(pageRequest, bindingResult);
 
         SeoPageDto dto = (SeoPageDto) this.getPageService().addPage(pageRequest);
@@ -139,7 +142,15 @@ public class SeoPageController implements ISeoPageController {
         if (bindingResult.hasErrors()) {
             throw new ValidationGenericException(bindingResult);
         }
-        if ((null!=pageRequest.getSeoData()) && (null!=pageRequest.getSeoData().getSeoDataByLang())) {
+
+        if (null!=pageRequest.getSeoData()) {
+            getSeoPageValidator().validateFriendlyCodeByLang(pageRequest.getSeoData().getSeoDataByLang(), bindingResult);
+        }
+        if (bindingResult.hasErrors()) {
+            throw new ValidationConflictException(bindingResult);
+        }
+
+        if ((null != pageRequest.getSeoData()) && (null != pageRequest.getSeoData().getSeoDataByLang())) {
             for (Entry<String, SeoDataByLang> entry : pageRequest.getSeoData().getSeoDataByLang().entrySet()) {
                 if (!getSeoPageValidator().checkFriendlyCode(pageRequest.getCode(), entry.getValue().getFriendlyCode())) {
                     DataBinder binder = new DataBinder(entry.getValue());

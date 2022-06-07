@@ -1,0 +1,77 @@
+{
+  "charset": "utf-8",
+  "code": "seoTest5",
+  "contentType": "text/html",
+  "displayedInMenu": true,
+  "ownerGroup": "free",
+  "pageModel": "service",
+  "parentCode": "service",
+  "joinGroups":[ ],
+  "seo": true,
+  "seoData": {
+    "seoDataByLang": {
+      "en": {
+        "description": "test",
+        "keywords": "keyword1, keyword 2",
+        "friendlyCode": "test_duplicated_friendly_code",
+        "metaTags": [
+          {
+            "key": "copyright",
+            "type": "name",
+            "value": "2022",
+            "useDefaultLang": false
+          },
+          {
+            "key": "author",
+            "type": "name",
+            "value": "entando",
+            "useDefaultLang": false
+          },
+          {
+            "key": "description",
+            "type": "name",
+            "value": "test page",
+            "useDefaultLang": false
+          }
+        ],
+        "inheritDescriptionFromDefaultLang": false,
+        "inheritKeywordsFromDefaultLang": false,
+        "inheritFriendlyCodeFromDefaultLang": true
+      },
+      "it": {
+        "description": "",
+        "keywords": "",
+        "friendlyCode": "test_duplicated_friendly_code",
+        "metaTags": [
+          {
+            "key": "copyright",
+            "type": "name",
+            "value": "entando",
+            "useDefaultLang": false
+          },
+          {
+            "key": "author",
+            "type": "name",
+            "value": "entando",
+            "useDefaultLang": false
+          },
+          {
+            "key": "description",
+            "type": "name",
+            "value": "metatag di prova",
+            "useDefaultLang": false
+          }
+        ],
+        "inheritDescriptionFromDefaultLang": true,
+        "inheritKeywordsFromDefaultLang": true
+      }
+    },
+    "useExtraDescriptions": true,
+    "useExtraTitles": true
+  },
+  "status": "draft",
+  "titles": {
+    "en": "Test Page",
+    "it": "Pagina di test"
+  }
+}
