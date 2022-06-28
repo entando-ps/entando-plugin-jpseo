@@ -5,9 +5,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="wp" uri="/aps-core" %>
 
-<link rel="stylesheet" href="<wp:resourceURL />administration/css/jquery-ui.css"></script>
-<link rel="stylesheet" href="<wp:resourceURL />plugins/jpseo/administration/css/master-seo.css">
-<script src="<wp:resourceURL />administration/js/jquery-ui.js"></script>
+<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />administration/css/jquery-ui.css"></script>
+<link rel="stylesheet" href="<wp:resourceURL ignoreTenant="true" />plugins/jpseo/administration/css/master-seo.css">
+<script src="<wp:resourceURL ignoreTenant="true" />administration/js/jquery-ui.js"></script>
 
 <jsp:include page="/WEB-INF/plugins/jpseo/apsadmin/jsp/portal/seo-autocomplete.jsp" />
 
