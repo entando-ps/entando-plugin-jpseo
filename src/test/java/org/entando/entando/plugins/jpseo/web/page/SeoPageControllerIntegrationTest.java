@@ -32,6 +32,7 @@ import com.agiletec.aps.system.services.page.IPageManager;
 import com.agiletec.aps.system.services.page.Page;
 import com.agiletec.aps.system.services.page.PageMetadata;
 import com.agiletec.aps.system.services.page.PageTestUtil;
+import com.agiletec.aps.system.services.pagemodel.IPageModelManager;
 import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.system.services.role.Permission;
 import com.agiletec.aps.system.services.user.UserDetails;
@@ -70,6 +71,9 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
     
     @Autowired
     private IPageManager pageManager;
+    
+    @Autowired
+    private IPageModelManager pageModelManager;
     
     @Autowired
     private SeoMappingManager seoMappingManager;
@@ -1116,12 +1120,12 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
             parent = "service";
         }
         IPage parentPage = pageManager.getDraftPage(parent);
-        PageModel pageModel = parentPage.getMetadata().getModel();
+        PageModel pageModel = this.pageModelManager.getPageModel(parentPage.getMetadata().getModelCode());
         PageMetadata metadata = PageTestUtil
                 .createPageMetadata(pageModel, true, pageCode + "_title", null, null, false, null, null);
         ApsProperties config = new ApsProperties();
         config.put("actionPath", "/mypage.jsp");
-        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), group, metadata, null);
+        Page pageToAdd = PageTestUtil.createPage(pageCode, parentPage.getCode(), group, pageModel, metadata, null);
         return pageToAdd;
     }
     

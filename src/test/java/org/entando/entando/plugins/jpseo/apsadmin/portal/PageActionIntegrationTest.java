@@ -64,7 +64,7 @@ class PageActionIntegrationTest extends ApsAdminBaseTestCase {
 		assertEquals(ApsAdminSystemConstants.EDIT, action.getStrutsAction());
 		assertEquals(page.getCode(), action.getPageCode());
 		assertEquals(page.getParentCode(), action.getParentPageCode());
-		assertEquals(page.getModel().getCode(), action.getModel());
+		assertEquals(page.getModelCode(), action.getModel());
 		assertEquals(page.getGroup(), action.getGroup());
 		assertEquals(page.isShowable(), action.isShowable());
 		assertEquals("Pagina 1", action.getTitles().getProperty("it"));
@@ -81,7 +81,7 @@ class PageActionIntegrationTest extends ApsAdminBaseTestCase {
 		assertEquals(ApsAdminSystemConstants.EDIT, action.getStrutsAction());
 		assertEquals(page.getCode(), action.getPageCode());
 		assertEquals(page.getParentCode(), action.getParentPageCode());
-		assertEquals(page.getModel().getCode(), action.getModel());
+		assertEquals(page.getModelCode(), action.getModel());
 		assertEquals(page.getGroup(), action.getGroup());
 		assertEquals(page.isShowable(), action.isShowable());
 		assertEquals("Seo Page 1", action.getTitles().getProperty("en"));

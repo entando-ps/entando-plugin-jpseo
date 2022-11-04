@@ -25,6 +25,7 @@ import com.agiletec.aps.system.services.lang.Lang;
 import com.agiletec.aps.system.services.lang.LangManager;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.page.PageManager;
+import com.agiletec.aps.system.services.pagemodel.PageModel;
 import com.agiletec.aps.util.ApsProperties;
 import java.util.ArrayList;
 import java.util.Date;
@@ -254,7 +255,8 @@ public class SeoPageService extends PageService {
     private SeoPageMetadata mapSeoDataToSeoPageMetadata(SeoData seoData,
             PageRequest pageRequest) {
         SeoPageMetadata seoPageMetadata = new SeoPageMetadata();
-        seoPageMetadata.setModel(getPageModelManager().getPageModel(pageRequest.getPageModel()));
+        PageModel model = this.getPageModelManager().getPageModel(pageRequest.getPageModel());
+        seoPageMetadata.setModelCode(model.getCode());
         seoPageMetadata.setGroup(pageRequest.getOwnerGroup());
         final Map<String, String> titles = pageRequest.getTitles();
         if (null != seoData.getUseExtraDescriptions()) {
