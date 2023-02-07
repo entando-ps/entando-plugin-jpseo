@@ -31,6 +31,9 @@ import org.springframework.validation.Errors;
 @Component
 public class SeoPageValidator extends PageValidator {
     private static final EntLogger logger =  EntLogFactory.getSanitizedLogger(SeoPageValidator.class);
+    public static final String ERRCODE_PAGE_INVALID_FRIENDLY_CODE = "10";
+    public static final String ERRCODE_PAGE_DUPLICATED_FRIENDLY_CODE = "11";
+    public static final String ERRCODE_PAGE_INVALID_TITLE = "12";
 
     @Autowired
     private ISeoMappingManager seoMappingManager;
@@ -76,7 +79,7 @@ public class SeoPageValidator extends PageValidator {
         Set friendlyCodesDuplicates = findFriendlyCodesDuplicates(friendlyCodes);
 
         if (friendlyCodesDuplicates.size() > 0) {
-            errors.reject("11", "Duplicated friendly code across different languages");
+            errors.reject(ERRCODE_PAGE_DUPLICATED_FRIENDLY_CODE, "Duplicated friendly code across different languages");
             return false;
         }
         return true;

@@ -29,6 +29,8 @@ import org.entando.entando.plugins.jpseo.aps.system.services.mapping.ContentFrie
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.FriendlyCodeVO;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.ISeoMappingDAO;
 
+import java.util.List;
+
 /**
  * @author E.Santoboni
  */
@@ -52,7 +54,6 @@ public interface ISeoMappingCacheWrapper extends ICacheWrapper {
     public ContentFriendlyCode getMappingByContentId(String contentId);
     
     public String getDraftPageReference(String friendlyCode);
-    
-    public void updateDraftPageReference(String friendlyCode, String pageCode);
-    
+
+    public void updateDraftPageReferences(List<String> friendlyCodes, String pageCode);
 }

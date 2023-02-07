@@ -13,18 +13,6 @@
  */
 package org.entando.entando.plugins.jpseo.web.page;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.agiletec.aps.system.common.notify.NotifyManager;
 import com.agiletec.aps.system.services.group.Group;
 import com.agiletec.aps.system.services.page.IPage;
@@ -40,10 +28,6 @@ import com.agiletec.aps.util.ApsProperties;
 import com.agiletec.aps.util.FileTextReader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.entando.entando.aps.system.services.page.IPageService;
 import org.entando.entando.aps.system.services.page.model.PageDto;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.FriendlyCodeVO;
@@ -61,6 +45,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
+
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest {
 
@@ -90,7 +85,8 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
     private static String SEO_TEST_6 = "seoTest6";
 
     private static String SEO_TEST_2_FC = "seoTest2fc";
-
+    private static String SEO_TEST_7 = "seoTest7";
+    private static String SEO_TEST_7_FC = "seoTest7fc";
 
     @Test
     void testGetBuiltInSeoPage() throws Exception {
@@ -300,6 +296,59 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
             seoMappingManager.getSeoMappingDAO().deleteMappingForPage(SEO_TEST_3);
         }
     }
+
+
+    @Test
+    void testUnpublishThenPostAlreadyUsedFriendlyCode() throws Exception {
+        try {
+            String friendlyCodeEn = "testpage7en";
+            String friendlyCodeIt = "testpage7it";
+
+            String accessToken = this.createAccessToken();
+            ResultActions result1 = this.executePostSeoPage("7_POST_valid.json", accessToken, status().isOk());
+            Assertions.assertNotNull(this.pageService.getPage(SEO_TEST_7, IPageService.STATUS_DRAFT));
+            result1.andExpect(jsonPath("$.errors.size()", is(0)))
+                    .andExpect(jsonPath("$.payload.code", is(SEO_TEST_7)))
+                    .andExpect(jsonPath("$.payload.seoData.seoDataByLang.en.friendlyCode", is(friendlyCodeEn)))
+                    .andExpect(jsonPath("$.payload.seoData.seoDataByLang.it.friendlyCode", is(friendlyCodeIt)));
+
+            this.pageManager.setPageOnline(SEO_TEST_7);
+            Thread.sleep(200);
+
+            Assertions.assertNotNull(seoMappingManager.getReference(friendlyCodeEn));
+            Assertions.assertNotNull(seoMappingManager.getReference(friendlyCodeIt));
+
+            this.pageManager.setPageOffline(SEO_TEST_7);
+
+            this.pageManager.deletePage(SEO_TEST_7);
+
+            Thread.sleep(200);
+
+            Assertions.assertNull(seoMappingManager.getReference(friendlyCodeEn));
+            Assertions.assertNull(seoMappingManager.getReference(friendlyCodeIt));
+
+            ResultActions result2 = this.executePostSeoPage("7_POST_valid_already_used_fc.json", accessToken, status().isOk());
+            Assertions.assertNotNull(this.pageService.getPage(SEO_TEST_7_FC, IPageService.STATUS_DRAFT));
+            result2.andExpect(jsonPath("$.errors.size()", is(0)))
+                    .andExpect(jsonPath("$.payload.code", is(SEO_TEST_7_FC)))
+                    .andExpect(jsonPath("$.payload.seoData.seoDataByLang.en.friendlyCode", is(friendlyCodeEn)))
+                    .andExpect(jsonPath("$.payload.seoData.seoDataByLang.it.friendlyCode", is(friendlyCodeIt)));
+
+            this.pageManager.setPageOnline(SEO_TEST_7_FC);
+
+            Thread.sleep(200);
+
+            Assertions.assertNotNull(seoMappingManager.getReference(friendlyCodeEn));
+            Assertions.assertNotNull(seoMappingManager.getReference(friendlyCodeIt));
+
+        } finally {
+            this.pageManager.deletePage(SEO_TEST_7);
+            this.pageManager.deletePage(SEO_TEST_7_FC);
+            seoMappingManager.getSeoMappingDAO().deleteMappingForPage(SEO_TEST_7);
+            seoMappingManager.getSeoMappingDAO().deleteMappingForPage(SEO_TEST_7_FC);
+        }
+    }
+
 
     @Test
     void testPostSeoPageDuplicatedFriendlyCodeOnDifferentLanguages() throws Exception {
@@ -1086,6 +1135,32 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
     }
 
     @Test
+    void testPostSeoPageEmptyDefaultLangTitle() throws Exception {
+            String accessToken = this.createAccessToken();
+            ResultActions result1 = this.executePostSeoPage("2_POST_invalid_default_lang_empty_title.json", accessToken, status().isBadRequest());
+            result1.andExpect(jsonPath("$.errors.size()", is(1)))
+                   .andExpect(jsonPath("$.errors[0].code", is("12")))
+                   .andExpect(jsonPath("$.errors[0].message", is("Invalid title for the default language IT")));
+    }
+
+    @Test
+    void testPutSeoPageEmptyDefaultLangTitle() throws Exception {
+        try {
+            String accessToken = this.createAccessToken();
+            this.executePostSeoPage("2_POST_valid.json", accessToken, status().isOk());
+            Assertions.assertNotNull(this.pageService.getPage(SEO_TEST_2, IPageService.STATUS_DRAFT));
+
+            this.executePutSeoPage("2_POST_invalid_default_lang_empty_title.json", SEO_TEST_2, accessToken, status().isBadRequest())
+                    .andExpect(jsonPath("$.errors.size()", is(1)))
+                    .andExpect(jsonPath("$.errors[0].code", is("12")))
+                    .andExpect(jsonPath("$.errors[0].message", is("Invalid title for the default language IT")));
+        } finally {
+            this.pageManager.deletePage(SEO_TEST_2);
+            seoMappingManager.getSeoMappingDAO().deleteMappingForPage(SEO_TEST_2);
+        }
+    }
+
+    @Test
     void testPutSeoPageEmptyFriendlyCode() throws Exception {
         try {
             String accessToken = this.createAccessToken();
@@ -1147,8 +1222,8 @@ class SeoPageControllerIntegrationTest extends AbstractControllerIntegrationTest
 
     private ResultActions executePostSeoPage(String fileName, String accessToken, ResultMatcher expected)
             throws Exception {
-        InputStream isJsonPostValid2 = this.getClass().getResourceAsStream(fileName);
-        String jsonPostValid2 = FileTextReader.getText(isJsonPostValid2);
+        InputStream isJsonPostValid = this.getClass().getResourceAsStream(fileName);
+        String jsonPostValid2 = FileTextReader.getText(isJsonPostValid);
         String path = "/plugins/seo/pages/";
         ResultActions result = mockMvc
                 .perform(post(path)

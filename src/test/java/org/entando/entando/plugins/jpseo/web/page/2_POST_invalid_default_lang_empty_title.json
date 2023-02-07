@@ -1,0 +1,38 @@
+{
+    "charset": "utf-8",
+    "code": "seoTest2",
+    "contentType": "text/html",
+    "displayedInMenu": true,
+    "ownerGroup": "free",
+    "pageModel": "service",
+    "parentCode": "service",
+    "joinGroups":[ ],
+    "seo": true,
+    "seoData": {
+        "seoDataByLang": {
+            "en": {
+                "description": "test",
+                "keywords": "keyword1, keyword 2",
+                "friendlyCode": "test_page_2_fc_en",
+                "metaTags": [],
+                "inheritDescriptionFromDefaultLang": false,
+                "inheritKeywordsFromDefaultLang": false
+            },
+            "it": {
+                "description": "",
+                "keywords": "",
+                "friendlyCode": "test_page_2_fc_it",
+                "metaTags": [],
+                "inheritDescriptionFromDefaultLang": true,
+                "inheritKeywordsFromDefaultLang": true
+            }
+        },
+        "useExtraDescriptions": true,
+        "useExtraTitles": true
+    },
+    "status": "draft",
+    "titles": {
+        "en": "Pagina di test",
+        "it": ""
+    }
+}

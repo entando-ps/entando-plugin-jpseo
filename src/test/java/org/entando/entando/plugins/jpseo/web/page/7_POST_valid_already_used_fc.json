@@ -1,0 +1,28 @@
+{
+    "charset": "utf-8",
+    "code": "seoTest7fc",
+    "contentType": "text/html",
+    "displayedInMenu": true,
+    "ownerGroup": "free",
+    "pageModel": "service",
+    "parentCode": "service",
+    "joinGroups":[ ],
+    "seo": true,
+    "seoData": {
+        "seoDataByLang": {
+            "en": {
+                "friendlyCode": "testpage7en"
+            },
+            "it": {
+                "friendlyCode": "testpage7it"
+            }
+        },
+        "useExtraDescriptions": true,
+        "useExtraTitles": true
+    },
+    "status": "draft",
+    "titles": {
+        "en": "Test Page",
+        "it": "Pagina di test"
+    }
+}

@@ -1,5 +1,6 @@
 package org.entando.entando.plugins.jpseo.web.page;
 
+import com.agiletec.aps.system.services.lang.LangManager;
 import com.agiletec.aps.system.services.page.IPage;
 import com.agiletec.aps.system.services.user.UserDetails;
 
@@ -33,6 +34,9 @@ import org.springframework.validation.DataBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.entando.entando.plugins.jpseo.web.page.validator.SeoPageValidator.ERRCODE_PAGE_INVALID_FRIENDLY_CODE;
+import static org.entando.entando.plugins.jpseo.web.page.validator.SeoPageValidator.ERRCODE_PAGE_INVALID_TITLE;
+
 @RestController
 @RequestMapping(value = "/plugins/seo/pages")
 public class SeoPageController implements ISeoPageController {
@@ -45,6 +49,9 @@ public class SeoPageController implements ISeoPageController {
 
     @Autowired
     private SeoPageValidator seoPageValidator;
+
+    @Autowired
+    private LangManager langManager;
 
     @Autowired
     private PageAuthorizationService authorizationService;
@@ -92,13 +99,14 @@ public class SeoPageController implements ISeoPageController {
         if (bindingResult.hasErrors()) {
             throw new ValidationGenericException(bindingResult);
         }
+
         getSeoPageValidator().validate(pageRequest, bindingResult);
         if ((null!=pageRequest.getSeoData()) && (null!=pageRequest.getSeoData().getSeoDataByLang())) {
             for (Entry<String, SeoDataByLang> entry : pageRequest.getSeoData().getSeoDataByLang().entrySet()) {
                 if (!getSeoPageValidator().checkFriendlyCode(pageRequest.getCode(), entry.getValue().getFriendlyCode())) {
                     DataBinder binder = new DataBinder(entry.getValue());
                     bindingResult = binder.getBindingResult();
-                    bindingResult.reject("10",  "Invalid friendly code");
+                    bindingResult.reject(ERRCODE_PAGE_INVALID_FRIENDLY_CODE,  "Invalid friendly code");
                     throw new ValidationConflictException(bindingResult);
                 }
             }
@@ -116,6 +124,9 @@ public class SeoPageController implements ISeoPageController {
             throw new ResourcePermissionsException(user.getUsername(), pageRequest.getCode());
         }
 
+        validateDefaultLangPageTitle(pageRequest, bindingResult);
+
+
         SeoPageDto dto = (SeoPageDto) this.getPageService().addPage(pageRequest);
         return new ResponseEntity<>(new SimpleRestResponse<>(dto), HttpStatus.OK);
     }
@@ -125,6 +136,19 @@ public class SeoPageController implements ISeoPageController {
         seoPageValidator.validateGroups(pageRequest.getOwnerGroup(), parent.getGroup(), bindingResult);
         if (bindingResult.hasErrors()) {
             throw new ValidationUnprocessableEntityException(bindingResult);
+        }
+    }
+    private void validateDefaultLangPageTitle(PageRequest pageRequest, BindingResult bindingResult) {
+
+        String defaultLangTitle = pageRequest.getTitles().get(langManager.getDefaultLang().getCode());
+
+        if ((null == defaultLangTitle) || (defaultLangTitle.isEmpty())) {
+            String defaultLangCode = langManager.getDefaultLang().getCode().toUpperCase();
+            bindingResult.reject(ERRCODE_PAGE_INVALID_TITLE, "Invalid title for the default language " + defaultLangCode);
+        }
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationGenericException(bindingResult);
         }
     }
 
@@ -152,12 +176,14 @@ public class SeoPageController implements ISeoPageController {
             throw new ValidationConflictException(bindingResult);
         }
 
+        validateDefaultLangPageTitle(pageRequest, bindingResult);
+
         if ((null != pageRequest.getSeoData()) && (null != pageRequest.getSeoData().getSeoDataByLang())) {
             for (Entry<String, SeoDataByLang> entry : pageRequest.getSeoData().getSeoDataByLang().entrySet()) {
                 if (!getSeoPageValidator().checkFriendlyCode(pageRequest.getCode(), entry.getValue().getFriendlyCode())) {
                     DataBinder binder = new DataBinder(entry.getValue());
                     bindingResult = binder.getBindingResult();
-                    bindingResult.reject("10",  "Invalid friendly code");
+                    bindingResult.reject(ERRCODE_PAGE_INVALID_FRIENDLY_CODE,  "Invalid friendly code");
                     throw new ValidationConflictException(bindingResult);
                 }
             }
