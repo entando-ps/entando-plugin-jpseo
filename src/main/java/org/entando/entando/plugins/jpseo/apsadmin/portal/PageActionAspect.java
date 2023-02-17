@@ -32,6 +32,7 @@ import com.opensymphony.xwork2.Action;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -154,6 +155,7 @@ public class PageActionAspect {
 
     private void checkFriendlyCode(PageAction action) {
         HttpServletRequest request = ServletActionContext.getRequest();
+        Set<String> currentCodes = new HashSet<>();
         Iterator<Lang> langsIter = this.getLangManager().getLangs().iterator();
         while (langsIter.hasNext()) {
             Lang lang = (Lang) langsIter.next();
@@ -163,28 +165,31 @@ public class PageActionAspect {
                 action.addFieldError(PARAM_FRIENDLY_CODES,
                         action.getText("jpseo.error.friendlyCode.stringlength", args));
             }
-            if (null != code && code.trim().length() > 0) {
-                Pattern pattern = Pattern.compile("([a-z0-9_])+");
-                Matcher matcher = pattern.matcher(code);
-                if (!matcher.matches()) {
-                    action.addFieldError(PARAM_FRIENDLY_CODES,
-                            action.getText("jpseo.error.friendlyCode.wrongCharacters"));
-                }
+            if (StringUtils.isBlank(code)) {
+                continue;
             }
-            if (null != code && code.trim().length() > 0) {
-                FriendlyCodeVO vo = this.getSeoMappingManager().getReference(code);
-                if (null != vo && (vo.getPageCode() == null || !vo.getPageCode().equals(action.getPageCode()))) {
+            Pattern pattern = Pattern.compile("([a-z0-9_])+");
+            Matcher matcher = pattern.matcher(code);
+            if (!matcher.matches()) {
+                action.addFieldError(PARAM_FRIENDLY_CODES,
+                        action.getText("jpseo.error.friendlyCode.wrongCharacters"));
+            }
+            FriendlyCodeVO vo = this.getSeoMappingManager().getReference(code);
+            if (null != vo && (vo.getPageCode() == null || !vo.getPageCode().equals(action.getPageCode()))) {
+                action.addFieldError(PARAM_FRIENDLY_CODES,
+                        action.getText("jpseo.error.page.duplicateFriendlyCode", new String[]{code}));
+            } else {
+                String pageCode = action.getPageCode();
+                String draftPageReference = this.seoMappingManager.getDraftPageReference(code);
+                if (null != draftPageReference && !pageCode.equals(draftPageReference)) {
                     action.addFieldError(PARAM_FRIENDLY_CODES,
                             action.getText("jpseo.error.page.duplicateFriendlyCode", new String[]{code}));
-                } else {
-                    String pageCode = action.getPageCode();
-                    String draftPageReference = this.seoMappingManager.getDraftPageReference(code);
-                    if (null != draftPageReference && !pageCode.equals(draftPageReference)) {
-                        action.addFieldError(PARAM_FRIENDLY_CODES,
-                                action.getText("jpseo.error.page.duplicateFriendlyCode", new String[]{code}));
-                    }
                 }
             }
+            if (currentCodes.contains(code)) {
+                action.addFieldError(PARAM_FRIENDLY_CODES, action.getText("jpseo.error.page.noUniqueFriendlyCode"));
+            }
+            currentCodes.add(code);
         }
     }
 

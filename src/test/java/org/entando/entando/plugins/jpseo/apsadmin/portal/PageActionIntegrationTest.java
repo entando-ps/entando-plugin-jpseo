@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.entando.entando.plugins.jpseo.aps.system.JpseoSystemConstants;
-import org.entando.entando.plugins.jpseo.aps.system.services.mapping.ISeoMappingManager;
 import org.entando.entando.plugins.jpseo.aps.system.services.mapping.SeoMappingManager;
 import org.entando.entando.plugins.jpseo.aps.system.services.page.PageMetatag;
 import org.entando.entando.plugins.jpseo.aps.system.services.page.SeoPageMetadata;
@@ -415,71 +414,79 @@ class PageActionIntegrationTest extends ApsAdminBaseTestCase {
         }
     }
 
-	@Test
-	void testSavePage_4() throws Throwable {
-		String longPageCode =
-				"abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde1";
-		assertNull(this.pageManager.getDraftPage(longPageCode));
+    @Test
+    void testSavePage_4() throws Throwable {
+        String longPageCode
+                = "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde1";
+        assertNull(this.pageManager.getDraftPage(longPageCode));
+        try {
+            Map<String, String> params = this.createParamForTest(longPageCode);
+            params.put("friendlyCode_lang_en", longPageCode + "_en");
+            params.put("friendlyCode_lang_it", longPageCode + "_it");
+            String result = this.executeSave(params, "admin");
+            assertEquals(Action.INPUT, result);
+            ActionSupport action = super.getAction();
+            assertEquals(2, action.getFieldErrors().size());
+            assertEquals(2, action.getFieldErrors().get(PageActionAspect.PARAM_FRIENDLY_CODES).size());
+        } catch (Throwable t) {
+            throw t;
+        } finally {
+            this.pageManager.deletePage(longPageCode);
+            seoMappingManager.getSeoMappingDAO().deleteMappingForPage(longPageCode);
+        }
+    }
 
-		try {
-			Map<String, String> params = this.createParamForTest(longPageCode);
-			params.put("friendlyCode_lang_en", longPageCode);
-			params.put("friendlyCode_lang_it", longPageCode);
-			String result = this.executeSave(params, "admin");
-			assertEquals(Action.INPUT, result);
-			ActionSupport action = super.getAction();
-			assertEquals(2, action.getFieldErrors().size());
-			assertEquals(2, action.getFieldErrors().get(PageActionAspect.PARAM_FRIENDLY_CODES).size());
-		} catch (Throwable t) {
-			throw t;
-		} finally {
-			this.pageManager.deletePage(longPageCode);
-			seoMappingManager.getSeoMappingDAO().deleteMappingForPage(longPageCode);
-		}
-	}
+    @Test
+    void testSavePage_5() throws Throwable {
+        String pageCode = "seo_test_5_1";
+        String pageCode2 = "seo_test_5_2";
+        assertNull(this.pageManager.getDraftPage(pageCode));
+        String friendlyCode_it = "duplicatefriendlycode_it";
+        String friendlyCode_en = "duplicatefriendlycode_en";
+        try {
+            Map<String, String> params = this.createParamForTest(pageCode);
+            params.put("friendlyCode_lang_en", friendlyCode_it);
+            params.put("friendlyCode_lang_it", friendlyCode_it);
+            String result = this.executeSave(params, "admin");
+            assertEquals(Action.INPUT, result);
+            ActionSupport action = super.getAction();
+            assertEquals(1, action.getFieldErrors().size());
+            assertEquals(1, action.getFieldErrors().get(PageActionAspect.PARAM_FRIENDLY_CODES).size());
 
-	@Test
-	void testSavePage_5() throws Throwable {
-		String pageCode = "seo_test_5_1";
-		String pageCode2 = "seo_test_5_2";
-		assertNull(this.pageManager.getDraftPage(pageCode));
-		String frindlyCode = "duplicatefriendlycode";
+            params = this.createParamForTest(pageCode);
+            params.put("friendlyCode_lang_en", friendlyCode_en);
+            params.put("friendlyCode_lang_it", friendlyCode_it);
+            result = this.executeSave(params, "admin");
+            assertEquals(Action.SUCCESS, result);
 
-		try {
-			Map<String, String> params = this.createParamForTest(pageCode);
-			params.put("friendlyCode_lang_en", frindlyCode);
-			params.put("friendlyCode_lang_it", frindlyCode);
-			String result = this.executeSave(params, "admin");
-			assertEquals(Action.SUCCESS, result);
+            params = this.createParamForTest(pageCode2);
+            params.put("friendlyCode_lang_en", friendlyCode_en);
+            params.put("friendlyCode_lang_it", friendlyCode_it);
+            result = this.executeSave(params, "admin");
+            assertEquals(Action.INPUT, result);
+            action = super.getAction();
+            assertEquals(1, action.getFieldErrors().size());
+            assertEquals(2, action.getFieldErrors().get(PageActionAspect.PARAM_FRIENDLY_CODES).size());
 
-			params = this.createParamForTest(pageCode2);
-			params.put("friendlyCode_lang_en", frindlyCode);
-			params.put("friendlyCode_lang_it", frindlyCode);
-			result = this.executeSave(params, "admin");
-			assertEquals(Action.INPUT, result);
-			ActionSupport action = super.getAction();
-			assertEquals(1, action.getFieldErrors().size());
-			assertEquals(2, action.getFieldErrors().get(PageActionAspect.PARAM_FRIENDLY_CODES).size());
+            this.pageManager.setPageOnline(pageCode);
+            result = this.executeSave(params, "admin");
+            assertEquals(Action.INPUT, result);
+            action = super.getAction();
+            assertEquals(1, action.getFieldErrors().size());
+            assertEquals(2, action.getFieldErrors().get(PageActionAspect.PARAM_FRIENDLY_CODES).size());
 
-			this.pageManager.setPageOnline(pageCode);
-			result = this.executeSave(params, "admin");
-			assertEquals(Action.INPUT, result);
-			action = super.getAction();
-			assertEquals(1, action.getFieldErrors().size());
-			assertEquals(2, action.getFieldErrors().get(PageActionAspect.PARAM_FRIENDLY_CODES).size());
+            result = this.executeActionOnPage(pageCode, "admin", "edit", params);
+            assertEquals(Action.SUCCESS, result);
 
-			result = this.executeActionOnPage(pageCode, "admin", "edit", params);
-			assertEquals(Action.SUCCESS, result);
-
-		} catch (Throwable t) {
-			throw t;
-		} finally {
-			pageManager.deletePage(pageCode);
-			pageManager.deletePage(pageCode2);
-			seoMappingManager.getSeoMappingDAO().deleteMappingForPage(pageCode);
-			seoMappingManager.getSeoMappingDAO().deleteMappingForPage(pageCode2);
-		}
-	}
+        } catch (Throwable t) {
+            throw t;
+        } finally {
+            pageManager.deletePage(pageCode);
+            pageManager.deletePage(pageCode2);
+            seoMappingManager.getSeoMappingDAO().deleteMappingForPage(pageCode);
+            seoMappingManager.getSeoMappingDAO().deleteMappingForPage(pageCode2);
+        }
+    }
     
     @Test
     void testAddRemoveMetatag() throws Throwable {
