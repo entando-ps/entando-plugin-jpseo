@@ -48,6 +48,9 @@ public class ContentViewerHelper extends com.agiletec.plugins.jacms.aps.system.s
 	
 	protected boolean isCurrentFrameMain(RequestContext reqCtx) {
 		Integer currentFrame = (Integer) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_FRAME);
+        if (null == currentFrame) {
+            return false;
+        }
 		IPage currentPage = (IPage) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_PAGE);
         PageModel model = super.getPageModelManager().getPageModel(currentPage.getMetadata().getModelCode());
 		int mainFrame = model.getMainFrame();
